@@ -1,58 +1,40 @@
 ## Create table to count conversions 
 
-drop table mca_misc.tb_channel_1; 
+DROP TABLE mca_misc.tb_channel_1; 
+CREATE TABLE mca_misc.tb_channel_1 AS 
 
-create table mca_misc.tb_channel_1 as 
+SELECT
 
- 
+a.org_party_id 
+, a.created_date
+, a.viewdate 
+, a.mql_status, 
+, a.converted
+, a.mql_count
+, a.audience_channel
+, a.audience_subchannel 
+, min(a.viewdate) AS from_time 
+, max(a.created_date) AS to_time
+, COUNT(DISTINCT a.session_id) AS visits  
 
-select  
+FROM mca_misc.tb_sfdc_web_at_all a  
 
-a.org_party_id,  
+WHERE a.mql_status NOT LIKE '%REJECTED%' 
 
-a.created_date,  
+GROUP BY
 
-a.viewdate,  
+a.org_party_id  
 
-a.mql_status, 
+, a.audience_channel
 
-a.converted, 
+, a.audience_subchannel 
 
-a.mql_count, 
+, a.created_date, a.viewdate
 
-a.audience_channel, 
+, a.mql_status,a.converted
 
-a.audience_subchannel, 
+, a.mql_count 
 
-min(a.viewdate) as from_time, 
-
-max(a.created_date) as to_time, 
-
-count(distinct a.session_id) as visits  
-
-from mca_misc.tb_sfdc_web_at_all a  
-
-where a.mql_status not like '%REJECTED%' 
-
- 
-
-group by  
-
-a.org_party_id,  
-
-a.audience_channel, 
-
- a.audience_subchannel, 
-
-a.created_date, a.viewdate, 
-
-a.mql_status,a.converted, 
-
-a.mql_count 
-
- 
-
- 
 
 ## Count numbers of days between create and viewdate 
 
@@ -158,9 +140,6 @@ a.date_diff,
 
 a.visits 
 
- 
-
- 
 
 ##Create Channel Table 
 
@@ -222,7 +201,7 @@ count(channels) AS path_num,
 
 concat_ws(">", collect_list(a.channels)) as path from  
       (  
-        select * from mca_misc.tb_channel_c order by from_time dec 
+        select * from mca_misc.tb_channel_c order by from_time desc 
        ) a 
 
  
